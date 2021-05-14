@@ -1,0 +1,158 @@
+<template>
+	<view class="uni-container">
+		<uni-search-bar @confirm="search" @input="input" ></uni-search-bar>
+		<swiper class="swiper" autoplay="ture" 
+			indicator-dots="ture" indicator-color="#">
+			<swiper-item v-for="(item, index) in photoList" @click="toPage(item)">
+				<cover-image class="image" :src="item"></cover-image>
+			</swiper-item>
+	 	</swiper>
+		<image  src="../../../static/first/11.jpg" class="swiper" style="width: 98%; margin-top: 10px;"></image>
+		
+		<view class="uni-list">
+			<view class="uni-list-cell"> 
+				<view class="uni-list-cell-left">
+					选择时间
+				</view>
+				<view class="uni-list-cell-db">
+					<picker mode="date" :value="date" :start="startDate" :end="endDate" @change="bindDateChange">
+						<view class="uni-input">{{date}}</view>
+					</picker>
+				</view>
+			</view>
+		</view>
+		
+	   <view>
+			<view class="uni-padding-wrap uni-common-mt">
+				<view>
+					<video id="myVideo" src="https://img.cdn.aliyun.dcloud.net.cn/guide/uniapp/%E7%AC%AC1%E8%AE%B2%EF%BC%88uni-app%E4%BA%A7%E5%93%81%E4%BB%8B%E7%BB%8D%EF%BC%89-%20DCloud%E5%AE%98%E6%96%B9%E8%A7%86%E9%A2%91%E6%95%99%E7%A8%8B@20200317.mp4"
+						@error="videoErrorCallback" :danmu-list="danmuList" enable-danmu danmu-btn controls></video>
+				</view>
+				<!-- #ifndef MP-ALIPAY -->
+				<view class="uni-list uni-common-mt">
+					<view class="uni-list-cell">
+						<view>
+							<view class="uni-label">弹幕内容</view>
+						</view>
+						<view class="uni-list-cell-db">
+							<input v-model="danmuValue" class="uni-input" type="text" placeholder="在此处输入弹幕内容" />
+						</view>
+					</view>
+				</view>
+				<view class="uni-btn-v">
+					<button @click="sendDanmu" class="page-body-button">发送弹幕</button>
+				</view>
+				<!-- #endif -->
+			</view>
+		</view>
+		<!-- 微信小程序 -->
+		<view class="ad-view">
+		  <ad unit-id="" ad-intervals="100"></ad>
+		</view>
+			
+	</view>
+	
+</template>
+<script>
+	// TODO 修复Android v3 加载过慢问题
+	// #ifdef APP-PLUS
+	var domModule = weex.requireModule('dom');
+	domModule.addRule('fontFace', {
+		'fontFamily': "uniicons",
+		'src': "url('/static/uni.ttf')"
+	});
+	// #endif
+	import {
+		mapState,
+		mapMutations
+	} from 'vuex';
+	export default {
+		data() {
+			return {
+				photoList: ["/static/first/11.jpg","/static/first/search.png","/static/first/11.jpg"],
+				 title: 'ad',
+				 src: '',
+				 danmuList: [{
+						 text: '第 1s 出现的弹幕',
+						 color: '#ff0000',
+						 time: 1
+					 },
+					 {
+						 text: '第 3s 出现的弹幕',
+						 color: '#ff00ff',
+						 time: 3
+					 }
+				 ],
+				 danmuValue: '',
+			}
+		},
+		 onReady: function(res) {
+		        // #ifndef MP-ALIPAY
+		        this.videoContext = uni.createVideoContext('myVideo')
+		        // #endif
+		    },
+		onShareAppMessage() {
+			return {
+				title: '欢迎体验uni-app',
+				path: '/pages/tabBar/first/first'
+			}
+		},
+		onNavigationBarButtonTap(e) {
+			uni.navigateTo({
+				url: '/pages/about/about'
+			});
+		},
+		// #ifndef APP-NVUE
+		computed: {
+		},
+		// #endif
+
+		// #ifdef H5
+		watch: {
+		},
+		// #endif
+		methods: {
+			bindClick() {
+				this.$refs.popug.open('top')
+			},
+			search(data) {
+				console.log(data)
+			},
+			input(data) {
+				console.log(data + "1231")
+			},
+			bindDateChange(date) {
+				console.log(date)
+			},
+			sendDanmu: function() {
+				this.videoContext.sendDanmu({
+					text: this.danmuValue,
+					color: this.getRandomColor()
+				});
+				this.danmuValue = '';
+			},
+			videoErrorCallback: function(e) {
+				uni.showModal({
+					content: e.target.errMsg,
+					showCancel: false
+				})
+			},
+			getRandomColor: function() {
+				const rgb = []
+				for (let i = 0; i < 3; ++i) {
+					let color = Math.floor(Math.random() * 256).toString(16)
+					color = color.length == 1 ? '0' + color : color
+					rgb.push(color)
+				}
+				return '#' + rgb.join('')
+			},
+			toPage(item) {
+				console.log(item)
+			},
+		}
+	}
+</script>
+
+<style>
+	@import '../../../common/uni-nvue.css';
+</style>
